@@ -23,8 +23,8 @@ struct stQuizz
 	short NumberOfQuestions;
 	enLevels SelectedLevel;
 	enOpTypes SelectedOpType;
-	short NumberOfRightAnswer;
-	short NumberOfWrongAnswer;
+	short NumberOfRightAnswer = 0;
+	short NumberOfWrongAnswer = 0;
 	bool IsPass = false;
 };
 
@@ -178,19 +178,80 @@ void MakeQuestions(stQuizz& Quizz)
 	}
 }
 
-void AskAndCorrectTheAnswer(stQuizz& Quizz)
+void DisplayQuestion(stQuizz& Quizz, short CurrentQuestion)
 {
-
+	cout << "\nQuestion [" << CurrentQuestion << "/" << Quizz.NumberOfQuestions << "] \n";
+	cout << Quizz.QuestionsList[CurrentQuestion].Number1 << endl;
+	cout << Quizz.QuestionsList[CurrentQuestion].Number2 << " ";
+	cout << GetOpSymbol(Quizz.QuestionsList[CurrentQuestion].SelectedOpType) << endl;
+	cout << "___________" << endl;
 }
 
+void GetUserAnswer(stQuizz& Quizz,short CurrentQuestion)
+{
+	int Answer = 0;
+	cin >> Answer;
+	Quizz.QuestionsList[CurrentQuestion].UserAnswer = Answer;
+}
 
+void CorrectAnswer(stQuizz& Quizz, short CurrentQuestion)
+{
+	if (Quizz.QuestionsList[CurrentQuestion].UserAnswer != Quizz.QuestionsList[CurrentQuestion].CorrectAnswer)
+	{
+		Quizz.QuestionsList[CurrentQuestion].IsTure = false;
+		Quizz.NumberOfWrongAnswer++;
+		cout << "\n";
+		cout << "Wrong Answer :(\n";
+		cout << "The Right answer is " << Quizz.QuestionsList[CurrentQuestion].CorrectAnswer;
+		cout << endl;
+	}
+	else
+	{
+		Quizz.QuestionsList[CurrentQuestion].IsTure = true;
+		Quizz.NumberOfRightAnswer++;
+		cout << "\n";
+		cout << "Right Answer :)\n";
+	}
+	SetScreenColor(Quizz.QuestionsList[CurrentQuestion].IsTure);
+}
 
+void AskAndCorrectTheAnswer(stQuizz& Quizz)
+{
+	for (short CurrentQuestion = 0; CurrentQuestion < Quizz.NumberOfQuestions; CurrentQuestion++)
+	{
+		DisplayQuestion(Quizz, CurrentQuestion);
+		GetUserAnswer(Quizz, CurrentQuestion);
+		CorrectAnswer(Quizz, CurrentQuestion);
+	}
+	Quizz.IsPass = (Quizz.NumberOfRightAnswer >= Quizz.NumberOfWrongAnswer);
+}
 
+string PassOrFail(bool IsPass)
+{
+	if (IsPass)
+	{
+		return "Pass";
+	}
+	else
+	{
+		return "Fail";
+	}
+}
 
-
-
-
-
+void PrintResult(stQuizz Quizz)
+{
+	cout << "\n";
+	cout << "______________________________\n\n";
+	cout << " Final Resutls is " << PassOrFail(Quizz.IsPass);
+	cout << "\n______________________________\n\n";
+	cout << "Number of Questions: " << Quizz.NumberOfQuestions << endl;
+	cout << "Questions Level    : " << Quizz.SelectedLevel << endl;
+	cout << "OpType             : " << Quizz.SelectedOpType << endl;
+	cout << "Number of Right Answer: " << Quizz.NumberOfRightAnswer << endl;
+	cout << "Number of Wrong Answer: " << Quizz.NumberOfWrongAnswer << endl;
+	cout << "______________________________\n";
+	SetScreenColor(Quizz.IsPass);
+}
 
 void PlayGame()
 {
@@ -201,10 +262,8 @@ void PlayGame()
 
 	MakeQuestions(Quizz);
 	AskAndCorrectTheAnswer(Quizz);
-
+	PrintResult(Quizz);
 }
-
-
 
 void StartGame()
 {
